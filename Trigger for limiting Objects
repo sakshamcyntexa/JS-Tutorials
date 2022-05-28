@@ -1,0 +1,39 @@
+//CustomerTrigger.apxt
+
+trigger CustomerTrigger on Customer__c (before insert) 
+{
+	if(trigger.isBefore)
+    {
+        if(trigger.isInsert)
+        {
+            CustomerHandle.main(trigger.new);
+        }
+    }
+}
+
+
+//CustomerHandle.apxc
+
+public class CustomerHandle 
+{
+	public static void main(list<Customer__c> newList)
+    {
+        Set<id> SetParent=new Set<id>();
+        Map<Id, Employee__c> a=new Map<Id,Employee__c>();
+        for(Customer__c cm:newList)
+        {
+            SetParent.add(cm.Employee__C); // I hope this is a lookup field 
+        }
+        Map<Id, Employee__c> MapMan =new Map<Id,Employee__c>([select Name, Number_of_Customers__c from Employee__c where id in:SetParent ]);
+        for (Customer__c cm : newList )
+        {
+            if(MapMan.containsKey(cm.Employee__c))
+            {
+                if(MapMan.get(cm.Employee__c).Number_of_Customers__c >=2)
+                {
+                    cm.addError('Limit for associated customer for this employee is exceeded !! \n Assign to another or create a new employee.');
+                }
+            }	
+        }
+    }
+}
