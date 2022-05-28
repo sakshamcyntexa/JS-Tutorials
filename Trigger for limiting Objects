@@ -85,3 +85,7 @@ public class CustomerHandle
         }
     }
 }
+
+
+
+//create a picklist for premium and non premium and manage them by creating a record type
