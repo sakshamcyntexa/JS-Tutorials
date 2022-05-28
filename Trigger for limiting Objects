@@ -1,3 +1,5 @@
+
+//Employee Trigger
 //EmployeeTrigger.apxt
 
 trigger EmployeeTrigger on Employee__c (before insert) 
@@ -6,46 +8,14 @@ trigger EmployeeTrigger on Employee__c (before insert)
     {
         if(trigger.isInsert)
         {
-            EmployeeHandle.main(trigger.new);
-        }
-    }
-}
-
-
-//EmployeeHandle.apxc
-
-public class EmployeeHandle 
-{
-	public static void main(list<Employee__c> newList)
-    {
-        Set<id> SetParent=new Set<id>();
-        Map<Id, Manager__c> a=new Map<Id,Manager__c>();
-        for(Employee__c ep:newList)
-        {
-            SetParent.add(ep.Manager__c); // I hope this is a lookup field 
-        }
-        Map<Id, Manager__c> MapMan =new Map<Id,Manager__c>([select Name,Number_of_Employees__c from Manager__c where id in:SetParent ]);
-        for (Employee__c ep : newList )
-        {
-            if(MapMan.containsKey(ep.Manager__c))
-            {
-                if(MapMan.get(ep.Manager__C).Number_of_Employees__c >=10)
-                {
-                    ep.addError('Limit for associated employees for this manager is exceeded !! \n Assign to another or create a new manager.');
-                }
-            }	
+            TriggerHandle.EmployeeHandle(trigger.new);
         }
     }
 }
 
 
 
-
-
-
-
-
-
+//Customer Trigger
 //CustomerTrigger.apxt
 
 trigger CustomerTrigger on Customer__c (before insert) 
@@ -54,37 +24,70 @@ trigger CustomerTrigger on Customer__c (before insert)
     {
         if(trigger.isInsert)
         {
-            CustomerHandle.main(trigger.new);
+            TriggerHandle.CustomerHandle(trigger.new);
         }
     }
 }
 
 
-//CustomerHandle.apxc
+//TriggerHandle.apxc
 
-public class CustomerHandle 
+public class TriggerHandle 
 {
-	public static void main(list<Customer__c> newList)
-    {
-        Set<id> SetParent=new Set<id>();
-        Map<Id, Employee__c> a=new Map<Id,Employee__c>();
-        for(Customer__c cm:newList)
-        {
-            SetParent.add(cm.Employee__C); // I hope this is a lookup field 
-        }
-        Map<Id, Employee__c> MapMan =new Map<Id,Employee__c>([select Name, Number_of_Customers__c from Employee__c where id in:SetParent ]);
-        for (Customer__c cm : newList )
-        {
-            if(MapMan.containsKey(cm.Employee__c))
-            {
-                if(MapMan.get(cm.Employee__c).Number_of_Customers__c >=5)
-                {
-                    cm.addError('Limit for associated customer for this employee is exceeded !! \n Assign to another or create a new employee.');
-                }
-            }	
-        }
-    }
+	public static void EmployeeHandle(list<Employee__c> newList)
+    	{
+		Set<id> SetParent=new Set<id>();
+		Map<Id, Manager__c> a=new Map<Id,Manager__c>();
+		for(Employee__c ep:newList)
+		{
+		    SetParent.add(ep.Manager__c); // I hope this is a lookup field 
+		}
+		Map<Id, Manager__c> MapMan =new Map<Id,Manager__c>([select Name,Number_of_Employees__c from Manager__c where id in:SetParent ]);
+		for (Employee__c ep : newList )
+		{
+		    if(MapMan.containsKey(ep.Manager__c))
+		    {
+			if(MapMan.get(ep.Manager__C).Number_of_Employees__c >=10)
+			{
+			    ep.addError('Limit for associated employees for this manager is exceeded !! \n Assign to another or create a new manager.');
+			}
+		    }	
+		}
+    	}
+	
+	public static void CustomerHandle(list<Customer__c> newList)
+	{
+		Set<id> SetParent=new Set<id>();
+		Map<Id, Employee__c> a=new Map<Id,Employee__c>();
+		for(Customer__c cm:newList)
+		{
+		    SetParent.add(cm.Employee__C); // I hope this is a lookup field 
+		}
+		Map<Id, Employee__c> MapMan =new Map<Id,Employee__c>([select Name, Number_of_Customers__c from Employee__c where id in:SetParent ]);
+		for (Customer__c cm : newList )
+		{
+		    if(MapMan.containsKey(cm.Employee__c))
+		    {
+			if(MapMan.get(cm.Employee__c).Number_of_Customers__c >=5)
+			{
+			    cm.addError('Limit for associated customer for this employee is exceeded !! \n Assign to another or create a new employee.');
+			}
+		    }	
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
