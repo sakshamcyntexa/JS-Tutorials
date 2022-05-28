@@ -1,3 +1,51 @@
+//EmployeeTrigger.apxt
+
+trigger EmployeeTrigger on Employee__c (before insert) 
+{
+	if(trigger.isBefore)
+    {
+        if(trigger.isInsert)
+        {
+            EmployeeHandle.main(trigger.new);
+        }
+    }
+}
+
+
+//EmployeeHandle.apxc
+
+public class EmployeeHandle 
+{
+	public static void main(list<Employee__c> newList)
+    {
+        Set<id> SetParent=new Set<id>();
+        Map<Id, Manager__c> a=new Map<Id,Manager__c>();
+        for(Employee__c ep:newList)
+        {
+            SetParent.add(ep.Manager__c); // I hope this is a lookup field 
+        }
+        Map<Id, Manager__c> MapMan =new Map<Id,Manager__c>([select Name,Number_of_Employees__c from Manager__c where id in:SetParent ]);
+        for (Employee__c ep : newList )
+        {
+            if(MapMan.containsKey(ep.Manager__c))
+            {
+                if(MapMan.get(ep.Manager__C).Number_of_Employees__c >=2)
+                {
+                    ep.addError('Limit for associated employees for this manager is exceeded !! \n Assign to another or create a new manager.');
+                }
+            }	
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 //CustomerTrigger.apxt
 
 trigger CustomerTrigger on Customer__c (before insert) 
